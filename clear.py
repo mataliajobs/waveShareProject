@@ -7,25 +7,28 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 from waveshare_epd import epd7in5_V2
 from PIL import Image
 
-print("[START] Strong clearing e-paper display...")
+print("[START] Deep cleaning display...")
 
 epd = epd7in5_V2.EPD()
 epd.init()
 
-# --- FORCE FULL CLEAN ---
-print("[STEP] White pass...")
-epd.display(epd.getbuffer(Image.new('1', (epd.width, epd.height), 255)))
+white = Image.new('1', (epd.width, epd.height), 255)
+black = Image.new('1', (epd.width, epd.height), 0)
+
+# Repeat cycle 2–3 times
+for i in range(3):
+    print(f"[CYCLE {i+1}] White")
+    epd.display(epd.getbuffer(white))
+    time.sleep(2)
+
+    print(f"[CYCLE {i+1}] Black")
+    epd.display(epd.getbuffer(black))
+    time.sleep(2)
+
+# Final white
+print("[FINAL] White clean")
+epd.display(epd.getbuffer(white))
 time.sleep(2)
 
-print("[STEP] Black pass...")
-epd.display(epd.getbuffer(Image.new('1', (epd.width, epd.height), 0)))
-time.sleep(2)
-
-print("[STEP] Final white pass...")
-epd.display(epd.getbuffer(Image.new('1', (epd.width, epd.height), 255)))
-time.sleep(2)
-
-print("[OK] Strong clear complete")
-
+print("[OK] Deep clean complete")
 epd.sleep()
-print("[DONE]")
