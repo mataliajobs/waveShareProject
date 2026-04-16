@@ -12,7 +12,15 @@ from PIL import Image, ImageDraw, ImageFont
 # Initialize display
 epd = epd7in5_V2.EPD()
 epd.init()
-epd.Clear()
+
+# Force full white
+epd.display(epd.getbuffer(Image.new('1', (epd.width, epd.height), 255)))
+
+# Force full black
+epd.display(epd.getbuffer(Image.new('1', (epd.width, epd.height), 0)))
+
+# Back to white again
+epd.display(epd.getbuffer(Image.new('1', (epd.width, epd.height), 255)))
 
 # Create canvas
 image = Image.new('1', (epd.width, epd.height), 255)
