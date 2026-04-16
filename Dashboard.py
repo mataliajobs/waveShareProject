@@ -2,9 +2,6 @@ import sys
 import os
 from datetime import datetime
 import calendar
-import time
-
-print("[START] Dashboard script starting...")
 
 # ✅ Use local lib folder
 sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
@@ -12,67 +9,34 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
 from waveshare_epd import epd7in5_V2
 from PIL import Image, ImageDraw, ImageFont
 
-# -------------------------
-# INIT DISPLAY
-# -------------------------
-print("[STEP 1] Initializing display...")
+# Initialize display
 epd = epd7in5_V2.EPD()
 epd.init()
-print("[OK] Display initialized")
+epd.Clear()
 
-# -------------------------
-# FULL CLEAR (ANTI-GHOST)
-# -------------------------
-print("[STEP 2] Performing full screen clear (white -> black -> white)...")
-
-epd.display(epd.getbuffer(Image.new('1', (epd.width, epd.height), 255)))
-print("  -> White pass done")
-time.sleep(1)
-
-epd.display(epd.getbuffer(Image.new('1', (epd.width, epd.height), 0)))
-print("  -> Black pass done")
-time.sleep(1)
-
-epd.display(epd.getbuffer(Image.new('1', (epd.width, epd.height), 255)))
-print("  -> Final white pass done")
-
-print("[OK] Screen cleared")
-
-# -------------------------
-# CREATE CANVAS
-# -------------------------
-print("[STEP 3] Creating canvas...")
+# Create canvas
 image = Image.new('1', (epd.width, epd.height), 255)
 draw = ImageDraw.Draw(image)
 
-# -------------------------
-# LOAD FONTS
-# -------------------------
-print("[STEP 4] Loading fonts...")
+# Load fonts
 font_large = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 64)
 font_medium = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 28)
 font_small = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 22)
-print("[OK] Fonts loaded")
 
-# -------------------------
-# DIMENSIONS
-# -------------------------
+# Dimensions
 width = epd.width
 height = epd.height
+
 left_width = int(width * 0.65)
 
-# -------------------------
-# DRAW LAYOUT
-# -------------------------
-print("[STEP 5] Drawing layout panels...")
+# Draw borders
 draw.rectangle((0, 0, left_width, height), outline=0)
 draw.rectangle((left_width, 0, width, height//2), outline=0)
 draw.rectangle((left_width, height//2, width, height), outline=0)
 
 # -------------------------
-# CALENDAR
+# 📅 CALENDAR (LEFT PANEL)
 # -------------------------
-print("[STEP 6] Drawing calendar...")
 now = datetime.now()
 month_name = now.strftime("%B %Y")
 
@@ -93,12 +57,9 @@ for week in cal:
     draw.text((20, start_y), week_str, font=font_small, fill=0)
     start_y += 30
 
-print("[OK] Calendar drawn")
-
 # -------------------------
-# WEEK TASKS
+# 📋 WEEK TASKS (RIGHT TOP)
 # -------------------------
-print("[STEP 7] Drawing week tasks...")
 week_tasks = [
     "Finish Project",
     "UI Improvements",
@@ -113,12 +74,9 @@ for task in week_tasks:
     draw.text((left_width + 10, y), f"- {task}", font=font_small, fill=0)
     y += 30
 
-print("[OK] Week tasks drawn")
-
 # -------------------------
-# TODAY TASKS
+# 🗓 TODAY TASKS (RIGHT BOTTOM)
 # -------------------------
-print("[STEP 8] Drawing today tasks...")
 today_tasks = [
     "Run Code",
     "Fix Bugs",
@@ -132,27 +90,14 @@ for task in today_tasks:
     draw.text((left_width + 10, y), f"- {task}", font=font_small, fill=0)
     y += 30
 
-print("[OK] Today tasks drawn")
-
 # -------------------------
-# TIME DISPLAY
+# 🕒 TIME DISPLAY
 # -------------------------
-print("[STEP 9] Drawing time...")
 time_str = now.strftime("%I:%M %p")
 draw.text((width//2 - 140, height - 120), time_str, font=font_large, fill=0)
-print("[OK] Time drawn")
 
 # -------------------------
 # DISPLAY OUTPUT
 # -------------------------
-print("[STEP 10] Sending image to display...")
 epd.display(epd.getbuffer(image))
-print("[OK] Display updated")
-
-# -------------------------
-# SLEEP
-# -------------------------
-print("[STEP 11] Putting display to sleep...")
 epd.sleep()
-
-print("[DONE] Dashboard rendered successfully 🚀")
